@@ -1,8 +1,9 @@
 import { createContext, useState } from "react";
 
-export const CartContext = createContext ({
+export const CartContext = createContext({
     cart: [],
     calculateTotal: () => 0,
+    transformCartItems: () => [],
 })
 
 export const CartProvider = ({ children }) => {
@@ -12,7 +13,7 @@ export const CartProvider = ({ children }) => {
 
     const addItem = (item, quantity) => {
         if (!isInCart(item.id)) {
-            setCart(prev =>[...prev, {...item, quantity}])
+            setCart(prev => [...prev, { ...item, quantity }])
         } else {
             console.error("El producto ya fue agregado")
         }
@@ -20,7 +21,7 @@ export const CartProvider = ({ children }) => {
 
     const removeItem = (itemId) => {
         const cartUpdated = cart.filter(prod => prod.id !== itemId)
-        setCart (cartUpdated)
+        setCart(cartUpdated)
     }
 
     const clearCart = () => {
@@ -35,14 +36,25 @@ export const CartProvider = ({ children }) => {
 
     const calculateTotal = () => {
         return cart.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
+            (total, item) => total + item.price * item.quantity,
+            0
         );
-      };
+    };
 
+    const transformCartItems = () => {
+        return cart.map((item) => {
+            return {
+                id: item.id,
+                title: item.title,
+                price: item.price,
+                quantity: item.quantity,
+            };
+        });
+    }
     return (
-        <CartContext.Provider value = {{ cart, addItem, removeItem, clearCart, totalQuantity, calculateTotal }}>
+        <CartContext.Provider value={{ cart, addItem, removeItem, clearCart, totalQuantity, calculateTotal, transformCartItems }}>
             {children}
         </CartContext.Provider>
     )
+
 }
